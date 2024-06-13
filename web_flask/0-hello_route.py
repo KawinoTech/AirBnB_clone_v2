@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.url_map.strict_slashes = False
 
 
-@app.route('/')
+@app.route('/airbnb-onepage/')
 def index():
     '''The home page.'''
     return 'Hello HBNB!'
