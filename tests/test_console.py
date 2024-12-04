@@ -2,16 +2,15 @@
 """
 Contains the class TestConsoleDocs
 """
-
-import console
-import os
 import pep8
+import os
 import unittest
+import models
 from unittest.mock import patch
 from io import StringIO
-from models.engine.file_storage import FileStorage
+from console import HBNBCommand
 from models.engine.db_storage import DBStorage
-HBNBCommand = console.HBNBCommand
+from models.engine.file_storage import FileStorage
 
 
 class TestConsoleDocs(unittest.TestCase):
@@ -26,7 +25,7 @@ class TestConsoleDocs(unittest.TestCase):
         Create an instance of the command interpreter.
         """
         try:
-            os.rename("file.json", "tmp")
+            os.rename("../file.json", "tmp")
         except IOError:
             pass
         cls.HBNB = HBNBCommand()
@@ -38,7 +37,7 @@ class TestConsoleDocs(unittest.TestCase):
         Delete the test HBNBCommand instance.
         """
         try:
-            os.rename("tmp", "file.json")
+            os.rename("tmp", "../file.json")
         except IOError:
             pass
         del cls.HBNB
@@ -52,7 +51,7 @@ class TestConsoleDocs(unittest.TestCase):
     def tearDown(self):
         """Delete any created file.json."""
         try:
-            os.remove("file.json")
+            os.remove("../file.json")
         except IOError:
             pass
 
