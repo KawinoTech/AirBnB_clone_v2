@@ -1,0 +1,2 @@
+class DBStorage:
+    pass
