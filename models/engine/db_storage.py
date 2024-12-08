@@ -13,6 +13,7 @@ user = os.environ.get("HBNB_MYSQL_USER")
 password = os.environ.get("HBNB_MYSQL_PWD")
 host = os.environ.get("HBNB_MYSQL_HOST")
 database = os.environ.get("HBNB_MYSQL_DB")
+env = os.environ.get("HBNB_ENV")
 
 classes = {"Amenity": Amenity, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
@@ -26,6 +27,8 @@ class DBStorage:
                                                                                    host,
                                                                                    database),
                                                                                    pool_pre_ping=True)
+        if env == "test":
+            Base.metadata.drop_all(self.__engine)
     
     def all(self, cls=None):
         """query on the current database session"""
@@ -47,3 +50,12 @@ class DBStorage:
     
     def save(self):
         self.__session.commit()
+
+    def delete(self, obj=None):
+        """delete from the current database session obj if not None"""
+        if obj is not None:
+            self.__session.delete(obj)
+
+    def close(self):
+        """call remove() method on the private session attribute"""
+        self.__session.remove()
