@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import create_engine #create a 
