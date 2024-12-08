@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 from uuid import uuid4
 from datetime import datetime
-from models import storage
-
+import models #solves the problem of circular importation
+from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, String, DateTime
+from datetime import datetime
+Base = declarative_base()
 
 class BaseModel:
     """
@@ -19,6 +22,10 @@ class BaseModel:
         updated_at (datetime): The timestamp of the
         last update to the instance.
     """
+    
+    id = Column(String(60), nullable=False, primary_key=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
 
     def __init__(self, *args, **kwargs):
         """
@@ -53,9 +60,8 @@ class BaseModel:
             for k, v in kwargs.items():
                 if k != '__class__':
                     if k == 'created_at' or k == 'updated_at':
-                        v = datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%f')
+                        v = datetime.strptime(v, '%Y-%m-%dT%H:%M:%S')
                     setattr(self, k, v)
-        storage.new(self)
 
     def __str__(self):
         """
@@ -66,6 +72,8 @@ class BaseModel:
             str: A formatted string in the format
             "[ClassName] (id) {attributes}".
         """
+        if hasattr(self, '_sa_instance_state'):
+            del self._sa_instance_state
         return f"[{type(self).__name__}] ({self.id}) {self.__dict__}"
 
     def save(self):
@@ -75,7 +83,8 @@ class BaseModel:
         providing an accurate timestamp of the last modification.
         """
         self.updated_at = datetime.now()
-        storage.save()
+        models.storage.new(self)
+        models.storage.save()
 
     def to_dict(self):
         """
@@ -89,9 +98,16 @@ class BaseModel:
                   datetime attributes in ISO format,
                   along with a __class__ key.
         """
-        dict1 = {'__class__': type(self).__name__}
-        for k, v in self.__dict__.copy().items():
-            if k == 'created_at' or k == 'updated_at':
-                v = v.isoformat()
-            dict1[k] = v
-        return dict1
+        """returns a dictionary containing all keys/values of the instance"""
+        new_dict = self.__dict__.copy()
+        if "created_at" in new_dict:
+            new_dict["created_at"] = new_dict["created_at"].isoformat()
+        if "updated_at" in new_dict:
+            new_dict["updated_at"] = new_dict["updated_at"].isoformat()
+        new_dict["__class__"] = self.__class__.__name__
+        if "_sa_instance_state" in new_dict:
+            del new_dict["_sa_instance_state"]
+        return new_dict
+
+    def delete(self):
+        del self
