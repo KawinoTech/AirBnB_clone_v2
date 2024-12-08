@@ -9,10 +9,10 @@ from models.amenity import Amenity
 from models.user import User
 from models.review import Review
 from models.place import Place
-user = 'hbnb_dev'#os.environ.get("HBNB_MYSQL_USER")
-password = 'hbnb_dev_pwd'#os.environ.get("HBNB_MYSQL_PWD")
-host = 'localhost'#os.environ.get("HBNB_MYSQL_HOST")
-database = 'hbnb_dev_db'#os.environ.get("HBNB_MYSQL_DB")
+user = os.environ.get("HBNB_MYSQL_USER")
+password = os.environ.get("HBNB_MYSQL_PWD")
+host = os.environ.get("HBNB_MYSQL_HOST")
+database = os.environ.get("HBNB_MYSQL_DB")
 
 classes = {"Amenity": Amenity, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
