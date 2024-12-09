@@ -23,7 +23,7 @@ class DBStorage:
     __session = None
 
     def __init__(self):
-        self.__engine = create_engine('mysql+mysqldb://{:s}:{:s}@{:s}/{:s}'.format(user,
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(user,
                                                                                    password,
                                                                                    host,
                                                                                    database),
