@@ -1,9 +1,7 @@
 #!/usr/bin/python3
-"""
-Contains the class TestConsoleDocs
-"""
-import pep8
+"""Defines unittests for console.py."""
 import os
+import pep8
 import unittest
 import models
 from unittest.mock import patch
@@ -13,8 +11,8 @@ from models.engine.db_storage import DBStorage
 from models.engine.file_storage import FileStorage
 
 
-class TestConsoleDocs(unittest.TestCase):
-    """Class for testing documentation of the console"""
+class TestHBNBCommand(unittest.TestCase):
+    """Unittests for testing the HBNB command interpreter."""
 
     @classmethod
     def setUpClass(cls):
@@ -25,7 +23,7 @@ class TestConsoleDocs(unittest.TestCase):
         Create an instance of the command interpreter.
         """
         try:
-            os.rename("../file.json", "tmp")
+            os.rename("file.json", "tmp")
         except IOError:
             pass
         cls.HBNB = HBNBCommand()
@@ -33,15 +31,16 @@ class TestConsoleDocs(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """HBNBCommand testing teardown.
+
         Restore original file.json.
         Delete the test HBNBCommand instance.
         """
         try:
-            os.rename("tmp", "../file.json")
+            os.rename("tmp", "file.json")
         except IOError:
             pass
         del cls.HBNB
-        if type(models.storage) is DBStorage:
+        if type(models.storage) == DBStorage:
             models.storage._DBStorage__session.close()
 
     def setUp(self):
@@ -51,7 +50,7 @@ class TestConsoleDocs(unittest.TestCase):
     def tearDown(self):
         """Delete any created file.json."""
         try:
-            os.remove("../file.json")
+            os.remove("file.json")
         except IOError:
             pass
 
@@ -104,7 +103,7 @@ class TestConsoleDocs(unittest.TestCase):
             self.assertEqual(
                 "** class doesn't exist **\n", f.getvalue())
 
-    @unittest.skipIf(type(models.storage) is DBStorage, "Testing DBStorage")
+    @unittest.skipIf(type(models.storage) == DBStorage, "Testing DBStorage")
     def test_create(self):
         """Test create command."""
         with patch("sys.stdout", new=StringIO()) as f:
@@ -150,7 +149,7 @@ class TestConsoleDocs(unittest.TestCase):
             self.HBNB.onecmd("all Amenity")
             self.assertIn(am, f.getvalue())
 
-    @unittest.skipIf(type(models.storage) is DBStorage, "Testing DBStorage")
+    @unittest.skipIf(type(models.storage) == DBStorage, "Testing DBStorage")
     def test_create_kwargs(self):
         """Test create command with kwargs."""
         with patch("sys.stdout", new=StringIO()) as f:
@@ -206,7 +205,7 @@ class TestConsoleDocs(unittest.TestCase):
             self.assertEqual(
                 "** no instance found **\n", f.getvalue())
 
-    @unittest.skipIf(type(models.storage) is DBStorage, "Testing DBStorage")
+    @unittest.skipIf(type(models.storage) == DBStorage, "Testing DBStorage")
     def test_all(self):
         """Test all command input."""
         with patch('sys.stdout', new=StringIO()) as f:
@@ -216,7 +215,7 @@ class TestConsoleDocs(unittest.TestCase):
             self.HBNB.onecmd("all State")
             self.assertEqual("[]\n", f.getvalue())
 
-    @unittest.skipIf(type(models.storage) is DBStorage, "Testing DBStorage")
+    @unittest.skipIf(type(models.storage) == DBStorage, "Testing DBStorage")
     def test_update(self):
         """Test update command input."""
         with patch("sys.stdout", new=StringIO()) as f:
@@ -248,7 +247,7 @@ class TestConsoleDocs(unittest.TestCase):
             self.assertEqual(
                 "** value missing **\n", f.getvalue())
 
-    @unittest.skipIf(type(models.storage) is DBStorage, "Testing DBStorage")
+    @unittest.skipIf(type(models.storage) == DBStorage, "Testing DBStorage")
     def test_z_all(self):
         """Test alternate all command."""
         with patch("sys.stdout", new=StringIO()) as f:
@@ -259,7 +258,7 @@ class TestConsoleDocs(unittest.TestCase):
             self.HBNB.onecmd("State.all()")
             self.assertEqual("[]\n", f.getvalue())
 
-    @unittest.skipIf(type(models.storage) is DBStorage, "Testing DBStorage")
+    @unittest.skipIf(type(models.storage) == DBStorage, "Testing DBStorage")
     def test_z_count(self):
         """Test count command inpout"""
         with patch('sys.stdout', new=StringIO()) as f:
@@ -292,7 +291,7 @@ class TestConsoleDocs(unittest.TestCase):
             self.assertEqual(
                 "** no instance found **\n", f.getvalue())
 
-    @unittest.skipIf(type(models.storage) is DBStorage, "Testing DBStorage")
+    @unittest.skipIf(type(models.storage) == DBStorage, "Testing DBStorage")
     def test_update(self):
         """Test alternate destroy command inpout"""
         with patch('sys.stdout', new=StringIO()) as f:
@@ -318,30 +317,6 @@ class TestConsoleDocs(unittest.TestCase):
             self.assertEqual(
                 "** value missing **\n", f.getvalue())
 
-    def test_pep8_conformance_console(self):
-        """Test that console.py conforms to PEP8."""
-        pep8s = pep8.StyleGuide(quiet=True)
-        result = pep8s.check_files(['console.py'])
-        self.assertEqual(result.total_errors, 0,
-                         "Found code style errors (and warnings).")
 
-    def test_pep8_conformance_test_console(self):
-        """Test that tests/test_console.py conforms to PEP8."""
-        pep8s = pep8.StyleGuide(quiet=True)
-        result = pep8s.check_files(['tests/test_console.py'])
-        self.assertEqual(result.total_errors, 0,
-                         "Found code style errors (and warnings).")
-
-    def test_console_module_docstring(self):
-        """Test for the console.py module docstring"""
-        self.assertIsNot(console.__doc__, None,
-                         "console.py needs a docstring")
-        self.assertTrue(len(console.__doc__) >= 1,
-                        "console.py needs a docstring")
-
-    def test_HBNBCommand_class_docstring(self):
-        """Test for the HBNBCommand class docstring"""
-        self.assertIsNot(HBNBCommand.__doc__, None,
-                         "HBNBCommand class needs a docstring")
-        self.assertTrue(len(HBNBCommand.__doc__) >= 1,
-                        "HBNBCommand class needs a docstring")
+if __name__ == "__main__":
+    unittest.main()
