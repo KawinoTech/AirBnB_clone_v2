@@ -16,8 +16,6 @@ host = os.environ.get("HBNB_MYSQL_HOST")
 database = os.environ.get("HBNB_MYSQL_DB")
 env = os.environ.get("HBNB_ENV")
 
-classes = {"Amenity": Amenity, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
 class DBStorage:
     __engine = None
     __session = None

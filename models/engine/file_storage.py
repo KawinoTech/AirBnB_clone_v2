@@ -25,7 +25,7 @@ class FileStorage:
     __file_path = './file.json'
     __objects = {}
 
-    def all(self):
+    def all(self, cls=None):
         """
         Retrieves the dictionary of all stored objects.
 
@@ -88,3 +88,13 @@ class FileStorage:
                         self.__objects[f"{v['__class__']}.{v['id']}"] = v
         except FileNotFoundError:
             pass
+    def delete(self, obj=None):
+        """Delete a given object from __objects, if it exists."""
+        try:
+            del self.__objects["{}.{}".format(type(obj).__name__, obj.id)]
+        except (AttributeError, KeyError):
+            pass
+
+    def close(self):
+        """Call the reload method."""
+        self.reload()
