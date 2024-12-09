@@ -1,63 +1,93 @@
 #!/usr/bin/python3
-"""Defines the FileStorage class."""
 import json
-from models.base_model import BaseModel
-from models.amenity import Amenity
-from models.city import City
-from models.place import Place
-from models.review import Review
-from models.state import State
-from models.user import User
 
 
 class FileStorage:
-    """Represent an abstracted storage engine.
+    """
+    The FileStorage class handles the serialization and deserialization of
+    objects to and from a JSON file. It acts as a simple storage system,
+    storing all instances in a dictionary and allowing for the persistence
+    of data across sessions by saving to and reloading from a file.
 
     Attributes:
-        __file_path (str): The name of the file to save objects to.
-        __objects (dict): A dictionary of instantiated objects.
+        __file_path (str): The path to the JSON file used for data storage.
+        __objects (dict): A dictionary containing all instances by their unique
+                          identifiers, in the format "ClassName.id".
+
+    Methods:
+        all(): Returns the dictionary of stored objects.
+        new(obj): Adds a new object to the storage dictionary.
+        save(): Serializes and writes the storage dictionary to a JSON file.
+        reload(): Loads objects from the JSON file
+        back into the storage dictionary.
     """
 
-    __file_path = "file.json"
+    __file_path = './file.json'
     __objects = {}
 
     def all(self, cls=None):
-        """Return a dictionary of instantiated objects in __objects.
-
-        If a cls is specified, returns a dictionary of objects of that type.
-        Otherwise, returns the __objects dictionary.
         """
-        if cls is not None:
-            if type(cls) == str:
-                cls = eval(cls)
-            cls_dict = {}
-            for k, v in self.__objects.items():
-                if type(v) == cls:
-                    cls_dict[k] = v
-            return cls_dict
+        Retrieves the dictionary of all stored objects.
+
+        Returns:
+            dict: The dictionary containing all objects currently stored.
+                  The keys are in the format "ClassName.id", and the values
+                  are the corresponding instance data in dictionary format.
+        """
         return self.__objects
 
     def new(self, obj):
-        """Set in __objects obj with key <obj_class_name>.id."""
-        self.__objects["{}.{}".format(type(obj).__name__, obj.id)] = obj
+        """
+        Adds a new object to the storage dictionary with a unique key.
+
+        Args:
+            obj (BaseModel): The object to add to storage, expected to have
+                             an `id` attribute and a `to_dict`
+                             method for serialization.
+
+        Side Effects:
+            Updates the __objects dictionary by adding a new entry with the
+            key formatted as "ClassName.id" and value as the dictionary
+            representation of the object.
+        """
+        self.__objects[f"{type(obj).__name__}.{obj.id}"] = obj.to_dict()
 
     def save(self):
-        """Serialize __objects to the JSON file __file_path."""
-        odict = {o: self.__objects[o].to_dict() for o in self.__objects.keys()}
-        with open(self.__file_path, "w", encoding="utf-8") as f:
-            json.dump(odict, f)
+        """
+        Serializes the __objects dictionary and writes it to the JSON file.
+
+        Side Effects:
+            Writes the current state of the __objects dictionary to the file
+            specified in __file_path in JSON format.
+        """
+        with open(self.__file_path, 'w', encoding="UTF-8") as f:
+            json.dump(self.__objects, f, indent=2)
 
     def reload(self):
-        """Deserialize the JSON file __file_path to __objects, if it exists."""
+        """
+        Loads objects from the JSON file into the __objects dictionary.
+
+        This method deserializes data from the JSON file if it exists and
+        populates the __objects dictionary with stored instance data.
+        Each instance is represented in dictionary format with a key formatted
+        as "ClassName.id".
+
+        Side Effects:
+            Updates the __objects dictionary by adding entries from the file.
+            If the file does not exist or is empty, __objects
+            remains unchanged.
+        """
         try:
-            with open(self.__file_path, "r", encoding="utf-8") as f:
-                for o in json.load(f).values():
-                    name = o["__class__"]
-                    del o["__class__"]
-                    self.new(eval(name)(**o))
+            with open(self.__file_path, 'r', encoding="UTF-8") as f:
+                try:
+                    data = json.load(f)
+                except json.decoder.JSONDecodeError as e:
+                    pass
+                else:
+                    for v in data.values():
+                        self.__objects[f"{v['__class__']}.{v['id']}"] = v
         except FileNotFoundError:
             pass
-
     def delete(self, obj=None):
         """Delete a given object from __objects, if it exists."""
         try:
