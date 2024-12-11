@@ -77,4 +77,3 @@ server {
 # Reloads and restarts Nginx to apply the updated configuration
 sudo service nginx reload
 sudo service nginx restart
-
