@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#Prepares a server to serve AirBnB_clone static files
 
 # Updates system packages to ensure the package lists are up to date
 sudo apt-get update
