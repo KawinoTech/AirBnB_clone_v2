@@ -1,78 +1,65 @@
 #!/usr/bin/bash
+sudo apt-get update
+# Creating directories to store static files
+directories=("/data/" "/data/web_static/" "/data/web_static/releases/" "/data/web_static/shared/" "/data/web_static/releases/test/")
 
-# Update package list and install Nginx if not already installed
-if ! command -v nginx > /dev/null 2>&1; then
-    echo "Installing Nginx..."
-    sudo apt update
+# Checking whether nginx is installed, if not, installs it
+if ! command -v nginx >/dev/null 2>&1; then
     sudo apt install nginx -y
-else
-    echo "Nginx is already installed."
 fi
 
-# Define the required directories
-directories=(
-    "/data/"
-    "/data/web_static/"
-    "/data/web_static/releases/"
-    "/data/web_static/shared/"
-    "/data/web_static/releases/test/"
-)
-
-# Create directories if they do not exist
+# Iterate over the list to create directories
 for dir in "${directories[@]}"; do
-    if [ ! -d "$dir" ]; then
-        echo "Creating directory: $dir"
-        sudo mkdir -p "$dir"
-    else
-        echo "Directory already exists: $dir"
-    fi
+    # Create directory if it doesn't exist
+    sudo mkdir -p "$dir"
 done
-
-# Create a fake HTML file in the test directory
-sudo tee /data/web_static/releases/test/index.html > /dev/null <<EOF
-<!DOCTYPE html>
+sudo chown -R ubuntu:ubuntu /data/
+# Create a basic HTML page
+echo "<!DOCTYPE html>
 <html>
-<head>
-    <title>Test Page</title>
-</head>
-<body>
-    <h1>Welcome to web_static!</h1>
-</body>
-</html>
-EOF
+    <head>
+        <title>Page Title</title>
+    </head>
+    <body>
 
-# Create or update the symbolic link
-symlink="/data/web_static/current"
-target="/data/web_static/releases/test/"
+        <h1>This is a Heading</h1>
+        <p>This is a paragraph.</p>
 
-if [ -L "$symlink" ]; then
-    echo "Removing existing symbolic link: $symlink"
-    sudo rm "$symlink"
+    </body>
+</html>" > /data/web_static/releases/test/index.html
+
+
+LINK_PATH="/data/web_static/current"
+TARGET_PATH="/data/web_static/releases/test/"
+
+# Check if the symbolic link or file exists
+if [ -L "$LINK_PATH" ] || [ -e "$LINK_PATH" ]; then
+    rm -rf "$LINK_PATH"
 fi
 
-echo "Creating new symbolic link: $symlink -> $target"
-sudo ln -s "$target" "$symlink"
+sudo ln -s "$TARGET_PATH" "$LINK_PATH"
 
-# Give ownership of /data/ to the ubuntu user and group
+# Change ownership of the /data/ directory to ubuntu user and group (recursively)
 sudo chown -R ubuntu:ubuntu /data/
 
-# Update the Nginx configuration
-nginx_conf="/etc/nginx/sites-available/default"
+# Create or update the Nginx configuration for serving static files
+echo "
+server {
+    listen 80;
+    server_name mydomainname.tech;
 
-if grep -q "/hbnb_static" "$nginx_conf"; then
-    echo "Nginx configuration already updated for /hbnb_static."
-else
-    echo "Updating Nginx configuration for /hbnb_static..."
-    sudo sed -i '/server_name _;/a \
+    # Other configurations ...
+
     location /hbnb_static {
         alias /data/web_static/current/;
         index index.html;
-        try_files $uri $uri/ =404;
-    }' "$nginx_conf"
-fi
+        try_files \$uri \$uri/ =404;
+    }
 
-# Restart Nginx to apply changes
-echo "Restarting Nginx..."
+    # Other configurations ...
+}
+" | sudo tee /etc/nginx/sites-available/default > /dev/null
+
+# Restart Nginx to apply the changes
+sudo service nginx reload
 sudo service nginx restart
-
-echo "Setup complete!"
