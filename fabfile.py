@@ -7,11 +7,6 @@
 from fabric import task
 
 @task
-def hostname(c, branch="main"):
-    c.run(f"hostname")
-    c.run("pwd")
-
-@task
-def update(c):
-    c.sudo("apt update")
-    c.get("ps aux")
+def do_pack(c):
+    c.local("echo 'This is a local command'")
+    c.local("ls -la")
