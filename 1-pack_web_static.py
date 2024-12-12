@@ -18,16 +18,14 @@ def do_pack():
     """
     local("mkdir -p versions")  # Creates the directory if it doesn't exist
 
-    dt_object = datetime.strptime(datetime.strftime(datetime.now(),
-                                                    TIME_FORMAT), TIME_FORMAT)
+    dt_object = datetime.strptime(datetime.strftime(datetime.now(), TIME_FORMAT), TIME_FORMAT)
     formatted_datetime = dt_object.strftime("%Y%m%d%H%M%S")
     filename = 'web_static_' + formatted_datetime
 
     try:
         print(f"Packing web_static to versions/{filename}.tgz")
         local(f"tar -czvf versions/{filename}.tgz web_static")
-        print(f"web_static packed: versions/{filename}.tgz ->
-              {os.path.getsize(f'./versions/{filename}.tgz')} Bytes")
+        print(f"web_static packed: versions/{filename}.tgz -> {os.path.getsize(f'./versions/{filename}.tgz')} Bytes")
 
         return filename
     except (OSError, FileNotFoundError) as e:
