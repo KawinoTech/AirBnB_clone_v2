@@ -3,13 +3,13 @@
 
 import os
 from datetime import datetime
-from fabric.api import run, put, settings, cd, local, env
+from fabric.api import run, put, settings, cd, local, env, runs_once
 
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 env.hosts = ['ubuntu@54.173.70.151', 'ubuntu@18.207.236.53']
 
-
+@runs_once
 def do_pack():
     """
     Creates a tarball archive of the `web_static` directory and stores it
