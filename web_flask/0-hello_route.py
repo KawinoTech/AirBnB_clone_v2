@@ -1,10 +1,11 @@
+#!/usr/bin/python3
 from flask import Flask
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/'strict_slashes=False)
 def home():
-    return "Hello, World!"
+    return "Hello HBNB!"
 
 if __name__ == "__main__":
-    app.run()  # For development only; not needed for Gunicorn
+    app.run(host="0.0.0.0", port=5000)
